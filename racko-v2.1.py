@@ -9,8 +9,6 @@ init()
 size = width, height = 800, 600
 screen = display.set_mode(size)     #sets the screen
 
-#winSound = mixer.Sound("Mario.ogg") 
-   	 	
 #set the colours
 BLACK = (0,0,0)
 RED = (255, 0, 0)
@@ -24,7 +22,6 @@ LIGHTPINK = (255, 222, 217)
 
 GRAY = (217, 208, 206)
 PINK = (238, 214, 202)
-
 
 #set fonts
 fontRavie = font.SysFont("ravie", 70)
@@ -393,8 +390,6 @@ def drawLogin(button,mouseX,mouseY,nameList,pwList,scoreList):
         textSize = fontConXs.size(string)
         textRect = Rect(width//2 - textSize[0]//2, 362, textSize[0], textSize[1])
         screen.blit(text, textRect)        
-    if button==3:
-        state = MAINSTATE
     if button==1:
         if exitRect.collidepoint(mouseX,mouseY) == True:
             if secondLogin == False:
@@ -713,7 +708,7 @@ def outline (rec, x):
     draw.rect (screen, BLACK, rec, x)
 
 def players (button,mouseX,mouseY):
-    global username, password,username1, username2, password1
+    global username, password,username1, username2, password1, fromDraw,totalScore1,totalScore2,add1,add2
     
     #choose the number of players
     state=CHOOSESTATE    
@@ -757,6 +752,11 @@ def players (button,mouseX,mouseY):
             password1 = password
             username=""
             password=""
+            fromDraw = 0
+            totalScore1=0
+            totalScore2=0
+            add1=True
+            add2=True
     return state, hand, deck, secondLogin,username1,password1
 
 def numBox (num,x,d):
@@ -1075,7 +1075,7 @@ def winEffect(colour,x,y):
     display.flip()
 
 def twoPlayer(button,mouseX,mouseY):  
-    global showCard,discarded,deckUse,discardUsed,fromDraw,turn,end,discardList,multiDeck,score1,score2, secondLogin, username
+    global showCard,discarded,deckUse,discardUsed,fromDraw,turn,end,discardList,multiDeck,score1,score2, secondLogin, username, turnAlt
     state=TWOPLAYER     #define the state    
     draw.rect(screen,PINK,(0,0,width,height))  #draw the background
     playerName="" 
@@ -1085,7 +1085,7 @@ def twoPlayer(button,mouseX,mouseY):
     text = fontConXs.render(string, 1, BLACK)
     textSize = fontConXs.size(string)
     textRect = Rect(width//2-textSize[0]//2, 500, textSize[0], textSize[1])
-    screen.blit(text, textRect)
+    screen.blit(text, textRect) 
 
     for x in range (1,11):
         #write the scores
@@ -1257,7 +1257,6 @@ def twoPlayer(button,mouseX,mouseY):
         end=False
     if len(multiDeck)==0:
         if fromDraw==0:
-            #change to the score screen when there is nothing left on the deck, and when the card is used
             state = MULTISCORESTATE 
             fromDraw=""
             showCard=False
@@ -1268,11 +1267,10 @@ def twoPlayer(button,mouseX,mouseY):
     return state,score1, score2
 
 def multiScore (button,mouseX,mouseY):
-    global totalScore1,totalScore2, calculate, numRound, add1, add2,sumScore1, sumScore2
+    global totalScore1,totalScore2, turn,calculate, numRound, add1, add2,sumScore1, sumScore2, username, secondLogin, fromDraw, turnAlt
     gameEnd = False
     state=MULTISCORESTATE
     draw.rect(screen,PINK,(0,0,width,height))
-    
     #play again button
     string = "Next Round"
     againRect = draw.rect(screen,WHITE,(135,420,230,50)) 
@@ -1303,9 +1301,9 @@ def multiScore (button,mouseX,mouseY):
     textSize = fontConS.size(string)
     screen.blit (text, Rect (width//2-textSize[0]//2,170,textSize[0], textSize[1]))
     
-    text = fontConXs.render(username1 + ": " + str(totalScore1), 1, BLACK)	
+    text = fontConXs.render(username1 + ": " + str(score1), 1, BLACK)	
     screen.blit(text, Rect(280,225,400,100))  
-    text = fontConXs.render(username2 + ": " + str(totalScore2), 1, BLACK)	
+    text = fontConXs.render(username2 + ": " + str(score2), 1, BLACK)	
     screen.blit(text, Rect(280,260,400,100))  
     
     if totalScore2>=maxScore or totalScore1>=maxScore:
@@ -1331,22 +1329,22 @@ def multiScore (button,mouseX,mouseY):
         screen.blit(text, Rect(width//2-textSize[0]//2, 80, textSize[0], textSize[1]))  
     if gameEnd == True:
         draw.rect (screen, PINK, (0,height//2,width, height//2))
-        endRect = draw.rect(screen, WHITE, (width//2-170, 480, 340, 155))  
+        endRect = draw.rect(screen, WHITE, (width//2-125, 450, 250, 50))  
         text = fontConS.render("BACK TO MAIN", 1, BLACK)	
         textSize = fontConS.size(string)
-        screen.blit (text, Rect (width//2-textSize[0]//2,495,textSize[0], textSize[1]))
+        screen.blit (text, Rect (width//2-textSize[0]//2,460,textSize[0], textSize[1]))
     
     if button==1:
         if againRect.collidepoint(mouseX,mouseY)==True: 
             state = SECONDHOME      #start a new round when the button is clicked
             numRound+=1             #increase the round number by 1 
             calculate=True
+            if turnAlt == True:
+                turnAlt = False
+            else:
+                turnAlt = True
+
         if gameEnd == True and endRect.collidepoint(mouseX,mouseY)==True:
-            numRound = 1
-            state = HOMESTATE
-            calculate = True
-        if backRect.collidepoint(mouseX,mouseY)==True:
-            state=HOMESTATE
             numRound = 1
             calculate = True
             try:
@@ -1371,6 +1369,39 @@ def multiScore (button,mouseX,mouseY):
                     else:
                         numFile.write(nameList[i]+"*"+pwList[i]+"*"+scoreList[i]+"\n")
                 numFile.close() 
+            secondLogin = False
+            username = username1
+            fromDraw=""
+            state = HOMESTATE
+        if backRect.collidepoint(mouseX,mouseY)==True:
+            numRound = 1
+            calculate = True
+            try:
+                numFile = open ("thing.dat", "w")
+                find=True
+            except:
+                print("No database.")
+            if find==True:
+                for i in range(0, len(nameList)):
+                    if username1 == nameList[i]:
+                        if add1 == True:
+                            sumScore1 = totalScore1 + int(scoreList[i])
+                            add1 = False
+                        numFile.write(username1+"*"+pwList[i]+"*"+str(sumScore1)+"\n")
+                        scoreList[i] = str(sumScore1)
+                    elif username2 == nameList[i]:
+                        if add2 == True:
+                            sumScore2 = totalScore2 + int(scoreList[i])
+                            add2 = False
+                        numFile.write(username2+"*"+pwList[i]+"*"+str(sumScore2)+"\n")
+                        scoreList[i] = str(sumScore2)
+                    else:
+                        numFile.write(nameList[i]+"*"+pwList[i]+"*"+scoreList[i]+"\n")
+                numFile.close() 
+            secondLogin = False
+            username = username1
+            fromDraw=""
+            state=HOMESTATE
     return state,numRound
 
 #variables
@@ -1432,6 +1463,7 @@ inputPw = False
 deleteConfirm = False
 confirmError = False
 deleted = False
+turnAlt=True
 
 # Game Loop
 while running:
