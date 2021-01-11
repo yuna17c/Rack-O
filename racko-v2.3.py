@@ -49,10 +49,10 @@ SETTINGSTATE = 13
 DELSTATE = 14
 
 #images
-helpPic = image.load("C:/Users/yuna0/Desktop/Coding/Rack-O/helpIcon.png")
-settingPic = image.load("C:/Users/yuna0/Desktop/Coding/Rack-O/settingsIconSolid.png")
-startPic = image.load("C:/Users/yuna0/Desktop/Coding/Rack-O/startIcon.png")
-rulePic = image.load("C:/Users/yuna0/Desktop/Coding/Rack-O/rule.png")
+helpPic = image.load("images/helpIcon.png")
+settingPic = image.load("images/settingsIcon.png")
+startPic = image.load("images/startIcon.png")
+rulePic = image.load("images/rule.png")
 
 def mainMenu (button, mouseX, mouseY):
     global screen, width, height
@@ -185,10 +185,12 @@ def drawRegister(button, mouseX, mouseY):
         screen.blit(text, textRect)          
         usernameIn = False
         pwIn = True
-
-    string = password
-    text = fontConS.render(string, 1, BLACK)
-    textSize = fontConS.size(string)
+    
+    hiddenPw=""
+    for a in range (0, len(password)):
+        hiddenPw += "*"
+    text = fontConS.render(hiddenPw, 1, BLACK)
+    textSize = fontConS.size(hiddenPw)
     textRect = Rect(181,308,450,50) 
     screen.blit(text, textRect) 
 
@@ -204,7 +206,7 @@ def drawRegister(button, mouseX, mouseY):
     if entered:
         error1 = False       
         try:
-            numFile = open ("thing.dat", "r")
+            numFile = open ("userdata.dat", "r")
             find = True
         except:
             print("No database.")
@@ -223,7 +225,7 @@ def drawRegister(button, mouseX, mouseY):
             if nameList.count(username)>0:      #checks if the username already exists
                 multiple=True             
         if multiple==False:
-            numFile = open("thing.dat", "w")
+            numFile = open("userdata.dat", "w")
             for i in range(0, len(nameList)):
                 numFile.write(nameList[i]+"*"+ pwList[i]+"*"+scoreList[i]+"\n")  
             numFile.write(username+"*"+password+"*"+"0"+"\n") 
@@ -341,9 +343,11 @@ def drawLogin(button,mouseX,mouseY,nameList,pwList,scoreList):
     textRect = Rect(181,208,450,50)
     screen.blit(text, textRect) 
 
-    string=password
-    text = fontConS.render(string, 1, BLACK)
-    textSize = fontConS.size(string)
+    hiddenStr=""
+    for a in range (0, len(password)):
+        hiddenStr += "*"
+    text = fontConS.render(hiddenStr, 1, BLACK)
+    textSize = fontConS.size(hiddenStr)
     textRect = Rect(181,308,450,50)
     screen.blit(text, textRect) 
 
@@ -352,7 +356,7 @@ def drawLogin(button,mouseX,mouseY,nameList,pwList,scoreList):
 
     if entered==True:            
         try:
-            numFile = open ("thing.dat", "r")
+            numFile = open ("userdata.dat", "r")
             find=True
         except:
             print("No database.")
@@ -368,6 +372,8 @@ def drawLogin(button,mouseX,mouseY,nameList,pwList,scoreList):
                 pwList.append(data[1]) 
                 scoreList.append(data[2])                  
             numFile.close()
+            if len(nameList) == 0:
+                error2 = True
             for i in range (0,len(nameList)):
                 if str(nameList[i])==str(username) and str(pwList[i])==str(password):
                     exist=True
@@ -394,6 +400,8 @@ def drawLogin(button,mouseX,mouseY,nameList,pwList,scoreList):
         if exitRect.collidepoint(mouseX,mouseY) == True:
             if secondLogin == False:
                 state = MAINSTATE
+                username =""
+                password=""
             else:
                 state = HOMESTATE
                 secondLogin = False
@@ -645,11 +653,11 @@ def delete (button, mouseX,mouseY):
     if deleteConfirm==True:
         confirmError = False
         try:
-            numFile = open ("thing.dat", "r")
+            numFile = open ("userdata.dat", "r")
             find = True
         except:
             print("No database.")
-        numFile = open("thing.dat", "w")
+        numFile = open("userdata.dat", "w")
         if find:
             for i in range(0, len(nameList)):
                 if nameList[i] == username:
@@ -1019,7 +1027,7 @@ def drawScore (button,mouseX,mouseY):
             break
         score = 5*(10-i)
     try:
-        numFile = open ("thing.dat", "w")
+        numFile = open ("userdata.dat", "w")
         find=True
     except:
         print("No database.")
@@ -1348,7 +1356,7 @@ def multiScore (button,mouseX,mouseY):
             numRound = 1
             calculate = True
             try:
-                numFile = open ("thing.dat", "w")
+                numFile = open ("userdata.dat", "w")
                 find=True
             except:
                 print("No database.")
@@ -1377,7 +1385,7 @@ def multiScore (button,mouseX,mouseY):
             numRound = 1
             calculate = True
             try:
-                numFile = open ("thing.dat", "w")
+                numFile = open ("userdata.dat", "w")
                 find=True
             except:
                 print("No database.")
